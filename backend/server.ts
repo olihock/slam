@@ -10,7 +10,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import path from 'path';
 
 const app = express();
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3002;
 
 app.use(cors());
 app.use(bodyParser.json());
