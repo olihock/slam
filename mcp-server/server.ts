@@ -12,13 +12,33 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // POST /semantic-search: Simuliert semantische Suche
-app.post('/semantic-search', (req: Request, res: Response) => {
+
+import fetch from 'node-fetch';
+
+app.post('/semantic-search', async (req: Request, res: Response) => {
   const { query } = req.body as { query: string };
-  // Simulierte "semantische Suche" (hier einfach nur Echo + Zeitstempel)
-  const result = {
-    response: `MCP-Server: Antwort auf "${query}" um ${new Date().toLocaleTimeString()}`
-  };
-  res.json(result);
+  try {
+    // 1. Wikipedia-Suche nach passender Seite
+    const searchUrl = `https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+    const searchRes = await fetch(searchUrl);
+    if (!searchRes.ok) throw new Error('Wikipedia Search API Fehler');
+    const searchData = await searchRes.json() as any;
+    const firstHit = searchData.query?.search?.[0];
+    if (!firstHit) {
+      res.json({ response: 'Kein Wikipedia-Artikel gefunden.' });
+      return;
+    }
+    const pageTitle = firstHit.title;
+    // 2. Hole die Summary der gefundenen Seite
+    const summaryUrl = `https://de.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+    const wikiRes = await fetch(summaryUrl);
+    if (!wikiRes.ok) throw new Error('Wikipedia Summary API Fehler');
+    const wikiData = await wikiRes.json() as { extract?: string };
+    const response = wikiData.extract || 'Keine Zusammenfassung gefunden.';
+    res.json({ response });
+  } catch (err) {
+    res.json({ response: 'Fehler bei der Wikipedia-Anfrage.' });
+  }
 });
 
 app.listen(PORT, () => {
