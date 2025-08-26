@@ -4,10 +4,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsc server.ts --outDir dist --esModuleInterop && mv dist/server.js dist/server.cjs && node dist/server.cjs",
-    "start": "node dist/server.js"
+    "build": "npx tsc server.ts --outDir dist --esModuleInterop && mv dist/server.js dist/server.cjs",
+    "start": " node dist/server.cjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
