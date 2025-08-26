@@ -20,9 +20,84 @@ Dieses Projekt besteht aus einer React Single Page Application (SPA), einem Back
 
 ---
 
+## Alternative: MCP Wikipedia Server als STDIO-Variante
+
+Neben dem HTTP-Modus gibt es auch eine STDIO-Variante des MCP Wikipedia Servers:  
+[`mcp-wikipedia/stdio.mjs`](mcp-wikipedia/stdio.mjs)
+
+Diese Variante kann direkt in andere Tools (z.B. GitHub Copilot Agents) eingebunden werden, die das Model Context Protocol über STDIO unterstützen.
+
+### Starten der STDIO-Variante
+
+```bash
+cd mcp-wikipedia
+npm install
+npm run dev
+```
+
+### Konfiguration
+
+Der MCP Wikipedia Server kann über Umgebungsvariablen angepasst werden:
+
+- `WIKI_LANG` – Standardsprache (z.B. `de` oder `en`)
+- `WIKI_UA` – User-Agent für Wikipedia-API-Requests
+
+Beispiel für den Start mit deutscher Sprache:
+
+```bash
+WIKI_LANG=de node stdio.mjs
+```
+
+
+## Konfiguration für VSCode/Agenten (mcp.json)
+
+Um den MCP Wikipedia Server (STDIO) in VSCode oder mit Agenten zu nutzen, kann eine `.vscode/mcp.json` wie folgt aussehen:
+
+```jsonc
+{
+   "servers": {
+      "wikipedia": {
+         "type": "stdio",
+         "command": "node",
+         "args": ["mcp-wikipedia/stdio.mjs"],
+         "env": {
+            "WIKI_LANG": "de",
+            "WIKI_UA": "your-app/0.1 (you@example.com)"
+         },
+         "dev": {
+            "watch": "mcp-wikipedia/**/*.mjs",
+            "debug": { "type": "node" }
+         }
+      }
+   }
+}
+```
+
+Damit kann der Server direkt als MCP-Quelle in unterstützten Extensions oder Agenten verwendet werden.
+
+### Beispielaufruf (STDIO, JSON-RPC)
+
+Sende folgenden JSON-RPC-Request an den STDIO-Server, um nach "Marie Curie" zu suchen:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "wikipedia_lookup",
+  "params": {
+    "query": "Marie Curie",
+    "lang": "de"
+  }
+}
+```
+
+Die Antwort enthält die Zusammenfassung und Trefferliste zu "Marie Curie".
+
+---
+
 ## Startanleitung
 
-### 1. MCP Wikipedia Server starten
+### 1. MCP Wikipedia Server starten (HTTP-Modus)
 
 ```bash
 cd mcp-wikipedia
@@ -57,7 +132,8 @@ Die App ist dann erreichbar unter:
 
 - **Frontend:** [`src/`](src/) – React SPA, Sprach- und Texteingabe, Kommunikation mit Backend.
 - **Backend:** [`backend/server.ts`](backend/server.ts) – Express API, leitet Anfragen an MCP Wikipedia Server weiter.
-- **MCP Wikipedia Server:** [`mcp-wikipedia/http.mjs`](mcp-wikipedia/http.mjs) – Stellt Wikipedia-Tools über MCP-API bereit.
+- **MCP Wikipedia Server (HTTP):** [`mcp-wikipedia/http.mjs`](mcp-wikipedia/http.mjs) – Stellt Wikipedia-Tools über MCP-API bereit.
+- **MCP Wikipedia Server (STDIO):** [`mcp-wikipedia/stdio.mjs`](mcp-wikipedia/stdio.mjs) – Für Agenten und direkte Einbindung (z.B. Copilot Agents).
 
 ---
 
