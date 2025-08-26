@@ -46,10 +46,5 @@ export class OpenAIRealtimeService {
       this.recognition.stop();
       this.recognition = null;
     }
-    // TODO: Transkript an Backend senden und Antwort holen
-    // Simulierte Backend-Antwort
-    setTimeout(() => {
-      this.onResponse('Dies ist eine Beispiel-Antwort vom Backend.');
-    }, 2000);
   }
 }
