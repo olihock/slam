@@ -44,7 +44,7 @@ function createWikipediaServer() {
       return {
         content: [
           { type: 'text', text: hits.length ? `Top ${Math.min(hits.length, 5)} Treffer für "${query}" (${lg}):` : `Keine Treffer für "${query}" (${lg}).` },
-          { type: 'json', json: { query, lang: lg, hits } }
+          { type: 'text', text: JSON.stringify({ query, lang: lg, hits }) }
         ]
       };
     }
@@ -66,7 +66,7 @@ function createWikipediaServer() {
       return {
         content: [
           { type: 'text', text: extract },
-          { type: 'json', json: { lang: lg, title, summary: sum } }
+          { type: 'text', text: JSON.stringify({ lang: lg, title, summary: sum }) }
         ]
       };
     }
@@ -94,7 +94,7 @@ function createWikipediaServer() {
       return {
         content: [
           { type: 'text', text: summary.extract || `Keine Summary für ${first.title}.` },
-          { type: 'json', json: { lang: lg, query, topHit: { title: first.title, pageid: first.pageid }, hits, summary } }
+          { type: 'text', text: JSON.stringify({ lang: lg, query, topHit: { title: first.title, pageid: first.pageid }, hits, summary }) }
         ]
       };
     }
