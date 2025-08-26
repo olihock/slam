@@ -4,7 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "build": "npx tsc server.ts --outDir dist --esModuleInterop && mv dist/server.js dist/server.cjs && node dist/server.cjs",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -12,5 +13,11 @@
     "dotenv": "^17.2.1",
     "express": "^4.19.2",
     "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node-fetch": "^2.6.13"
   }
 }
