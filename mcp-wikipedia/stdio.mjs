@@ -35,7 +35,7 @@ server.registerTool(
     return {
       content: [
         { type: 'text', text: hits.length ? `Top ${Math.min(hits.length, 5)} Treffer für "${query}" (${lg}):` : `Keine Treffer für "${query}" (${lg}).` },
-        { type: 'json', json: { query, lang: lg, hits } }
+        { type: 'text', text: JSON.stringify({ query, lang: lg, hits }) }
       ]
     };
   }
@@ -57,7 +57,7 @@ server.registerTool(
     return {
       content: [
         { type: 'text', text: extract },
-        { type: 'json', json: { lang: lg, title, summary: sum } }
+        { type: 'text', text: JSON.stringify({ lang: lg, title, summary: sum }) }
       ]
     };
   }
@@ -69,10 +69,15 @@ server.registerTool(
   {
     title: 'Wikipedia Lookup',
     description: 'Sucht nach query, liefert Summary des Top-Treffers + Trefferliste.',
-    inputSchema: { query: z.string(), topK: z.number().int().min(1).max(10).optional(), lang: z.string().optional() }
+  inputSchema: { query: z.string(), topK: z.number().int().optional(), lang: z.string().optional() }
   },
   async ({ query, topK = 5, lang }) => {
+    console.log("Tool wikipedia_lookup aufgerufen mit Query:", query);
     const lg = (lang || DEFAULT_LANG).trim();
+    // Range-Check für topK
+    if (typeof topK !== 'number' || isNaN(topK)) topK = 5;
+    if (topK < 1) topK = 1;
+    if (topK > 10) topK = 10;
     const searchUrl = `https://${lg}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json`;
     const s = await wikiFetch(searchUrl);
     const hits = (s?.query?.search || []).slice(0, topK);
@@ -85,7 +90,7 @@ server.registerTool(
     return {
       content: [
         { type: 'text', text: summary.extract || `Keine Summary für ${first.title}.` },
-        { type: 'json', json: { lang: lg, query, topHit: { title: first.title, pageid: first.pageid }, hits, summary } }
+        { type: 'text', text: JSON.stringify({ lang: lg, query, topHit: { title: first.title, pageid: first.pageid }, hits, summary }) }
       ]
     };
   }

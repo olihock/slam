@@ -78,10 +78,14 @@ function createWikipediaServer() {
     {
       title: 'Wikipedia Lookup',
       description: 'Sucht nach query, liefert Summary des Top-Treffers + Trefferliste.',
-      inputSchema: { query: z.string(), topK: z.number().int().min(1).max(10).optional(), lang: z.string().optional() }
+  inputSchema: { query: z.string(), topK: z.number().int().optional(), lang: z.string().optional() }
     },
     async ({ query, topK = 5, lang }) => {
       const lg = (lang || DEFAULT_LANG).trim();
+      // Range-Check für topK
+      if (typeof topK !== 'number' || isNaN(topK)) topK = 5;
+      if (topK < 1) topK = 1;
+      if (topK > 10) topK = 10;
       const searchUrl = `https://${lg}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json`;
       const s = await wikiFetch(searchUrl);
       const hits = (s?.query?.search || []).slice(0, topK);
