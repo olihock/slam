@@ -6,13 +6,25 @@
 // Hinweis: Die OpenAI Realtime API ist im Browser aktuell nicht direkt verfügbar.
 // Für Demo-Zwecke wird die Web Speech API genutzt. Die Integration der echten OpenAI API erfolgt über das Backend.
 
+
+import OpenAI from "openai";
+
+// Achtung: API-Key sollte im echten Projekt niemals im Frontend liegen!
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+
 export class OpenAIRealtimeService {
   constructor({ onTranscript, onResponse }) {
     this.onTranscript = onTranscript;
-    this.onResponse = onResponse;
+    this.onResponse = async (text) => {
+      onResponse(text);
+      await this.speakWithOpenAI(text);
+    };
     this.isListening = false;
     this.recognition = null;
-    // TODO: Für echte OpenAI-Integration: Verbindung zum Backend herstellen
+    this.openai = null;
+    if (OPENAI_API_KEY) {
+      this.openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true });
+    }
   }
 
   start() {
@@ -45,6 +57,36 @@ export class OpenAIRealtimeService {
     if (this.recognition) {
       this.recognition.stop();
       this.recognition = null;
+    }
+  }
+
+  async speakWithOpenAI(text) {
+    if (!this.openai) {
+      // Fallback: Web Speech API TTS
+      if ('speechSynthesis' in window) {
+        const utterance = new window.SpeechSynthesisUtterance(text);
+        utterance.lang = 'de-DE';
+        window.speechSynthesis.speak(utterance);
+      }
+      return;
+    }
+    try {
+      // OpenAI Realtime API: TTS
+      const response = await this.openai.audio.speech.create({
+        model: "tts-1",
+        voice: "nova",
+        input: text,
+      });
+      const audioUrl = URL.createObjectURL(await response.blob());
+      const audio = new Audio(audioUrl);
+      audio.play();
+  } catch {
+      // Fallback: Web Speech API TTS
+      if ('speechSynthesis' in window) {
+        const utterance = new window.SpeechSynthesisUtterance(text);
+        utterance.lang = 'de-DE';
+        window.speechSynthesis.speak(utterance);
+      }
     }
   }
 }

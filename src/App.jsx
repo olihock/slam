@@ -36,7 +36,11 @@ function App() {
       setResponse('Warte auf Antwort ...');
       try {
         const backendResponse = await sendTranscriptToBackend(transcript);
-        setResponse(backendResponse);
+        if (mode === 'voice' && serviceRef.current && serviceRef.current.onResponse) {
+          await serviceRef.current.onResponse(backendResponse);
+        } else {
+          setResponse(backendResponse);
+        }
       } catch {
         setResponse('Fehler bei der Backend-Anfrage.');
       }
