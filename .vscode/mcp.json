@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "wikipedia": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["mcp-wikipedia/stdio.mjs"],
+      "env": {
+        "WIKI_LANG": "de",
+        "WIKI_UA": "mcp-wikipedia/0.1 (oliver.hock@gmail.com)"
+      },
+      "dev": {
+        "watch": "mcp-wikipedia/**/*.mjs",
+        "debug": { "type": "node" }
+      }
+    }
+  }
+}
